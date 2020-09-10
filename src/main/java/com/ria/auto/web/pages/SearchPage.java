@@ -16,6 +16,8 @@ import java.util.List;
 
 public class SearchPage extends BasePage {
 
+    private static final String CAR_BLOCK_LOCATOR = "//section[contains(@class,'ticket-item') and not(contains(@class,'hide'))]//div[@class='content-bar']";
+
     @FindBy(css = "#scrollUpLink")
     private WebElement scrollUpButton;
 
@@ -33,7 +35,6 @@ public class SearchPage extends BasePage {
 
     @FindBy(xpath = "//select[contains(@name,'price.currency')]/..")
     private WebElement priceCurrencyDropdown;
-
 
     @FindBy(xpath = "//div[@id='priceBlockOptions']//div")
     private WebElement priceAuctionCheckboxbutton;
@@ -97,6 +98,14 @@ public class SearchPage extends BasePage {
         return this;
     }
 
+    @Step("Get price 'From' value")
+    public String getPriceFromValue() {
+        LOGGER.info("Getting 'From' field value.");
+        String currency = getPriceCurrencyValue().name();
+        String fromValue = driver.findElement(By.xpath("//input[contains(@name,'price." + currency + ".gte')]")).getAttribute("value");
+        return fromValue;
+    }
+
     @Step("Set price 'From' value")
     public SearchPage setPriceFromValue(String fromValue) {
         LOGGER.info("Scrolling the page to the Price filter.");
@@ -107,14 +116,6 @@ public class SearchPage extends BasePage {
         clickOnScrollUpButton();
         waitForSearchProgressBarToBeLoaded();
         return this;
-    }
-
-    @Step("Get price 'From' value")
-    public String getPriceFromValue() {
-        LOGGER.info("Getting 'From' field value.");
-        String currency = getPriceCurrencyValue().name();
-        String fromValue = driver.findElement(By.xpath("//input[contains(@name,'price." + currency + ".gte')]")).getAttribute("value");
-        return fromValue;
     }
 
     @Step("Clear price 'From' value")
@@ -129,6 +130,14 @@ public class SearchPage extends BasePage {
         return this;
     }
 
+    @Step("Get price 'To' value")
+    public String getPriceToValue() {
+        LOGGER.info("Getting 'To' field value.");
+        String currency = getPriceCurrencyValue().name();
+        String toValue = driver.findElement(By.xpath("//input[contains(@name,'price." + currency + ".lte')]")).getAttribute("value");
+        return toValue;
+    }
+
     @Step("Set price 'To' value")
     public SearchPage setPriceToValue(String toValue) {
         String currency = scrollToPriceFilter();
@@ -137,14 +146,6 @@ public class SearchPage extends BasePage {
         clickOnScrollUpButton();
         waitForSearchProgressBarToBeLoaded();
         return this;
-    }
-
-    @Step("Get price 'To' value")
-    public String getPriceToValue() {
-        LOGGER.info("Getting 'To' field value.");
-        String currency = getPriceCurrencyValue().name();
-        String toValue = driver.findElement(By.xpath("//input[contains(@name,'price." + currency + ".lte')]")).getAttribute("value");
-        return toValue;
     }
 
     @Step("Clear price 'To' value")
@@ -201,17 +202,10 @@ public class SearchPage extends BasePage {
     public List<CarItem> getCarItems() {
         LOGGER.info("Getting search results.");
         List<CarItem> carItems = new ArrayList<>();
-        List<WebElement> itemBlocks = driver.findElements(By.xpath("//div[@id='searchResults']//div[@class='content-bar']"));
+        List<WebElement> itemBlocks = driver.findElements(By.xpath(CAR_BLOCK_LOCATOR));
         for (WebElement item : itemBlocks) {
             scrollInView(item);
-            String name = item.findElement(By.xpath(".//div[@class='head-ticket']//span")).getText();
-            String usd = item.findElement(By.xpath(".//div[@class='price-ticket']//span[@data-currency='USD']"))
-                    .getText().trim().replaceAll(" ", "");
-            int priceUSD = Integer.parseInt(usd);
-            String uah = item.findElement(By.xpath(".//div[@class='price-ticket']//span[@data-currency='UAH']"))
-                    .getText().trim().replaceAll(" ", "");
-            int priceUAH = Integer.parseInt(uah);
-            CarItem carItem = new CarItem(name, priceUSD, priceUAH);
+            CarItem carItem = createCarItem(item);
             carItems.add(carItem);
         }
         return carItems;
@@ -258,5 +252,19 @@ public class SearchPage extends BasePage {
         String currency = getPriceCurrencyValue().name();
         scrollInView(By.xpath("//input[contains(@name,'price." + currency + ".lte')]"));
         return currency;
+    }
+
+    /**
+     * The method {@code createCarItem()} creates a carItem from a block element.
+     */
+    private CarItem createCarItem(WebElement carItemBlock) {
+        String name = carItemBlock.findElement(By.xpath(".//div[@class='head-ticket']//span")).getText();
+        String usd = carItemBlock.findElement(By.xpath(".//div[@class='price-ticket']//span[@data-currency='USD']"))
+                .getText().trim().replaceAll(" ", "");
+        int priceUSD = Integer.parseInt(usd);
+        String uah = carItemBlock.findElement(By.xpath(".//div[@class='price-ticket']//span[@data-currency='UAH']"))
+                .getText().trim().replaceAll(" ", "");
+        int priceUAH = Integer.parseInt(uah);
+        return new CarItem(name, priceUSD, priceUAH);
     }
 }

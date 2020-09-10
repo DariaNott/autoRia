@@ -29,8 +29,8 @@ public class SearchTest extends BaseTest {
     public void precondition() {
         driver.get(EnvConfig.getEnvironment().getWebUrl());
         searchPage = new SearchPage(driver);
-        //   searchPage.selectUsedFilter().clickOnVerifiedVinCheckbox().chooseVehicleType(typeLightCar)
-        //           .chooseVehicleBrand(brandToyota);
+        searchPage.selectUsedFilter().clickOnVerifiedVinCheckbox().chooseVehicleType(typeLightCar)
+                .chooseVehicleBrand(brandToyota);
     }
 
     @Test(description = "User should be able to fill and clear Price filter fields")
@@ -88,7 +88,7 @@ public class SearchTest extends BaseTest {
     public void checkResultsFilteredByUsdPrice() {
         resultsList = searchPage.setPriceFromValue("700").setPriceToValue("1000").getCarItems();
         resultsPricesUSD = searchPage.getCarItemPricesUSD(resultsList);
-        Assert.assertTrue(searchPage.arePricesInRange(resultsPricesUSD, 600, 900));
+        Assert.assertTrue(searchPage.arePricesInRange(resultsPricesUSD, 700, 1000));
     }
 
     @Test(description = "User should see results with corresponding prices in UAH when Price filter is applied")

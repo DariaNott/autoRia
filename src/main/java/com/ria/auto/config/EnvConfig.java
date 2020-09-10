@@ -19,7 +19,6 @@ public class EnvConfig {
     private int timeoutPageLoad;
     private int implicitlyWait;
 
-
     private EnvConfig(String envName) {
         String path = System.getProperty("user.dir") + "/src/main/resources/config/"
                 + envName + ".properties";
@@ -27,7 +26,6 @@ public class EnvConfig {
         webUrl = properties.getProperty("webUrl");
         timeoutPageLoad = Integer.parseInt(properties.getProperty("timeout.PageLoad"));
         implicitlyWait = Integer.parseInt(properties.getProperty("timeout.implicitlyWait"));
-
     }
 
     public static EnvConfig getEnvironment() {

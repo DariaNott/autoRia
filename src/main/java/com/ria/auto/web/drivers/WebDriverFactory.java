@@ -10,7 +10,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
  *
  * @author Daria Ivanova
  */
-
 public class WebDriverFactory {
 
     private WebDriverFactory() {
@@ -23,11 +22,10 @@ public class WebDriverFactory {
             case "ie":
                 throw new UnsupportedOperationException("Edge driver is not supported, yet!");
             default:
-               WebDriverManager.chromedriver().setup();
+                WebDriverManager.chromedriver().setup();
                 ChromeOptions options = new ChromeOptions();
                 options.addArguments("--disable-notifications");
                 return new ChromeDriver(options);
         }
     }
-
 }
